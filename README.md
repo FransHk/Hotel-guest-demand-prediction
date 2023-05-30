@@ -5,7 +5,7 @@
   </a>
 
 <h1 align="center"><b>Hotel guest demand prediction pipeline</b></h2></br>
-<img src="images/screen_3.png"  width="690" height="444">
+<div align='center'> <img align='center'src="images/screen_3.png"  width="690" height="444"></div>
 
 </br>
 <h2 align="center"><b>Project description</b></h3>
@@ -31,14 +31,10 @@ This is an end-to-end machine learning pipeline with an exposed API and visual f
 <br> <h2 align='center'><b>Model information </b></h3> <p align="left"> 
 The  <a href="model.ipynb"> modelling </a> of this project was done exclusively in Python using Jupyter Notebook, Tensorflow and a host of standard data science packages. The Kaggle data was aggregated by open source <a href="https://open-meteo.com/">weather data</a> in Lisbon and Portugese school holidays during that time period. Multiple models were implemented. Given the (time) serial nature of the booking data, the first model built was an LSTM. Results of this model were compared to a baseline model (mean guests), a DNN and a simple SVR model. The columns 'last_28' and 'last_7' are rolling averages of the specified previous span of days. Multiple features were engineered, evaluated and added to the model. </p>
 
-<br><img src="images/data_excerpt.png"  width="700" height="125">
+<br><img align='center' src="images/data_excerpt.png"  width="700" height="125">
 
 <br> <h3 align='center'><b>Model exposure (Flask) </b></h3> <p align="left">
 The model that performed best (DNN) was exported along with its fitted scaler and then exposed using <a href="endpoints.py"> the Flask endpoint </a> using a DTO-model based approach. The goal was to build an easily scalable set of endpoints that can easily be maintained or built upon.</p>
-
-
-
-
 
 <br> <h3 align='center'><b> Prediction dashboard and backend </b></h3> <p align="left">
 The <a href="Blazor\Hotel Demand Blazor\Hotel Demand Blazor"> .NET backend </a> was written in .NET Core using Blazor and .NET Core WebAPI. The DemandService is injected into the dashboard and fetches sets of data used to draw the dashboard front-end. The Layout and graphing is handled by <a href="https://github.com/radzenhq/radzen-blazor"> Radzen Blazor </a> and the <a href="https://github.com/apexcharts/Blazor-ApexCharts"> Apexcharts Blazor wrapper </a>. Microsoft SQL Express + EF are used for storing and retrieving the proprocessed and aggregated Kaggle data, but is not included in this project for ease of reproduction through the <a href="/data"> included .CSV data. </a></p>
@@ -65,6 +61,7 @@ The <a href="Blazor\Hotel Demand Blazor\Hotel Demand Blazor"> .NET backend </a> 
 ```
 
 <br> <h3 align='center'><b> Model results </b></h3> <p align="left">
-The model data is divided in 85/15 ratio. As such, the model is trained on approx. 645 days of data and tested on approx. 85 days. The baseline model (always guesses average guest count, 98) gets a MSE of approximately 3000-3200 on the test set. The best performing model (a DNN) has a MSE  of around 1050 instead. This MSE is surprisingly low considering that a broad range of external events that impact guest counts are not taken into account by the model (i.e. events, discounts and advertisements) and there is not a lot of data to work with. The full results are presented in the notebook <a href="model.ipynb"> here </a>. </p>
-
-<img src="images/test-set.png"  width="400" height="350">
+The model data is divided in 85/15 ratio. As such, the model is trained on approx. 645 days of data and tested on approx. 85 days. The baseline model (always guesses average guest count, 98) gets a MSE of approximately 3000-3200 on the test set. The best performing model (a DNN) has a MSE  of around 1050 instead. This MSE is surprisingly low considering that a broad range of external events that impact guest counts are not taken into account by the model (i.e. events, discounts and advertisements) and there is not a lot of data to work with. The full results are presented in the notebook <a href="model.ipynb"> here </a>. </p><br>
+<div align='center'>
+<img align='center' src="images/test-set.png"  width="400" height="350">
+</div>
