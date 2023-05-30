@@ -36,10 +36,51 @@ The  <a href="model.ipynb"> modelling </a> of this project was done exclusively 
 <br> <h3 align='center'><b>Model exposure (Flask) </b></h3> <p align="left">
 The model that performed best (DNN) was exported along with its fitted scaler and then exposed using <a href="endpoints.py"> the Flask endpoint </a> using a DTO-model based approach. The goal was to build an easily scalable set of endpoints that can easily be maintained or built upon.</p>
 
+```python
+@app.route('/predict', methods=['POST'])
+def predict():
+
+    # Obtain model and scaler
+    scaler = app.config['SCALER']
+    model = app.config['MODEL']
+    
+    # Fetch input and reshape
+    input_data = request.json['data']  
+    input_data = np.array(input_data)  
+    input_data = np.reshape(input_data, (-1, 8))  
+
+    # Normalize input data using the scaler
+    input_data_scaled = scaler.transform(input_data)
+    prediction = model.predict(input_data_scaled)
+    pred_item = prediction.tolist()[0]
+    response = {'guest_ct' : pred_item}
+
+    return jsonify(response)
+```
+
 <br> <h3 align='center'><b> Prediction dashboard and backend </b></h3> <p align="left">
 The <a href="Blazor\Hotel Demand Blazor\Hotel Demand Blazor"> .NET backend </a> was written in .NET Core using Blazor and .NET Core WebAPI. The DemandService is injected into the dashboard and fetches sets of data used to draw the dashboard front-end. The Layout and graphing is handled by <a href="https://github.com/radzenhq/radzen-blazor"> Radzen Blazor </a> and the <a href="https://github.com/apexcharts/Blazor-ApexCharts"> Apexcharts Blazor wrapper </a>. Microsoft SQL Express + EF are used for storing and retrieving the proprocessed and aggregated Kaggle data, but is not included in this project for ease of reproduction through the <a href="/data"> included .CSV data. </a></p>
 
+```html
+<ApexChart TItem="Prediction"Title=@today.YearStr>
+
+              <ApexPointSeries TItem="Prediction"
+                  Items="predictionDataSubset" 
+                  Name="Actual guests" 
+                  XValue="@(e => e.Date.MonthDayStr)"
+                  YValue="@(e => e.GuestCount)"
+                  SeriesType="SeriesType.Area" />
+
+              <ApexPointSeries TItem="Prediction"
+                 Items="predictionDataSubset" 
+                 Name="Predicted guests" 
+                 XValue="@(e => e.Date.MonthDayStr)" 
+                 YValue="@(e => e.Predicted)" 
+                 SeriesType="SeriesType.Area" />
+</ApexChart>                 
+```
+
 <br> <h3 align='center'><b> Model results </b></h3> <p align="left">
-We consider the last three months of this dataset <b>(2017-04-01 to 2017-07-01)</b> as the test set, over which period this trained model attempts to predict the total amount of guests per day. The baseline model (always guesses average guest count, 98) gets a MSE of approximately 3000-3200.  The best performing model (DNN) has a MSE (Mean Squared Error) of around 1050. This MSE is to be expected given that a broad range of external events that impact guest counts are not taken into account by the model (like events, discounts and advertisements). The full results are present in the notebook <a href="model.ipynb"> here </a>. </p>
+The model data is divided in 85/15 ratio. As such, the model is trained on approx. 645 days of data and tested on approx. 85 days. The baseline model (always guesses average guest count, 98) gets a MSE of approximately 3000-3200 on the test set. The best performing model (a DNN) has a MSE  of around 1050 instead. This MSE is surprisingly low considering that a broad range of external events that impact guest counts are not taken into account by the model (i.e. events, discounts and advertisements) and there is not a lot of data to work with. The full results are presented in the notebook <a href="model.ipynb"> here </a>. </p>
 
 <img src="images/test-set.png"  width="400" height="350">
