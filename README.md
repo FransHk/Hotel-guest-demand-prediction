@@ -62,7 +62,10 @@ The <a href="Blazor\Hotel Demand Blazor\Hotel Demand Blazor"> .NET backend </a> 
 ```
 
 <br> <h3 align='center'><b> Model results </b></h3> <p align="left">
-The model data is divided in 85/15 ratio. As such, the model is trained on approx. 645 days of data and tested on approx. 85 days. The baseline model (always guesses average guest count, 98) gets a MSE of approximately 3000-3200 on the test set. The best performing model (a DNN) has a MSE  of around 1050 instead. This MSE is surprisingly low considering that a broad range of external events that impact guest counts are not taken into account by the model (i.e. events, discounts and advertisements) and there is not a lot of data to work with. The full results are presented in the notebook <a href="model.ipynb"> here </a>. </p><br>
+The data is divided by a 85/15 train/test ratio. As such, the model is trained on approx. 645 days of data and tested on approx. 85 days. The baseline model (always guesses average guest count, 98) gets a MSE of approximately 3000-3200 on the test set. The best performing model (a DNN) has a MSE  of around 1050 instead. This MSE is surprisingly low considering that a broad range of external events that impact guest counts are not taken into account by the model (i.e. events, discounts and advertisements) and there is not a lot of data to work with. The full results are presented in the notebook <a href="model.ipynb"> here </a>. </p><br>
 <div align='center'>
 <img align='center' src="images/test-set.png"  width="400" height="350">
-</div>
+
+<div align='center'><br>
+<br> <h3 align='center'><b> Other acknowledgements </b></h3> 
+Parts of the <a href="data\preprocessing.ipynb"> preprocessing step </a> were inspired by <a href="https://www.kaggle.com/code/atasaygin/hotel-booking-demand-eda-and-of-guest-prediction"> this submitted notebook </a> by Ata Saygın Odabaşı that is publicly available on Kaggle. </div>
