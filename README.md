@@ -1,7 +1,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/FransHk/Hotel-guest-demand-prediction">
-
+</div>
   </a>
 
 <h1 align="center"><b>Hotel guest demand prediction pipeline</b></h2></br>
@@ -29,55 +29,39 @@ This is an end-to-end machine learning pipeline with an exposed API and visual f
    
 </p>
 <br> <h2 align='center'><b>Model information </b></h3> <p align="left"> 
-The  <a href="model.ipynb"> modelling </a> of this project was done exclusively in Python using Jupyter Notebook, Tensorflow and a host of standard data science packages. The Kaggle data was combined by open source <a href="https://open-meteo.com/">weather data</a> of Lisbon during that same time period. Multiple models were implemented. Given the (time) serial nature of the booking data, the first model built was an LSTM. Results of this model were compared to a baseline model (mean guests), a DNN and a simple SVR model. The columns 'last_28' and 'last_7' are rolling averages of the specified previous span of days. Multiple features were engineered, evaluated and added to the model. </p>
+The  <a href="model.ipynb"> modelling </a> of this project was done exclusively in Python using Jupyter Notebook, Tensorflow and a host of standard data science packages. The Kaggle data was aggregated by open source <a href="https://open-meteo.com/">weather data</a> in Lisbon and Portugese school holidays during that time period. Multiple models were implemented. Given the (time) serial nature of the booking data, the first model built was an LSTM. Results of this model were compared to a baseline model (mean guests), a DNN and a simple SVR model. The columns 'last_28' and 'last_7' are rolling averages of the specified previous span of days. Multiple features were engineered, evaluated and added to the model. </p>
 
-<br><br><img src="images/data_excerpt.png"  width="600" height="100">
+<br><img src="images/data_excerpt.png"  width="700" height="125">
 
 <br> <h3 align='center'><b>Model exposure (Flask) </b></h3> <p align="left">
 The model that performed best (DNN) was exported along with its fitted scaler and then exposed using <a href="endpoints.py"> the Flask endpoint </a> using a DTO-model based approach. The goal was to build an easily scalable set of endpoints that can easily be maintained or built upon.</p>
 
-```python
-@app.route('/predict', methods=['POST'])
-def predict():
 
-    # Obtain model and scaler
-    scaler = app.config['SCALER']
-    model = app.config['MODEL']
-    
-    # Fetch input and reshape
-    input_data = request.json['data']  
-    input_data = np.array(input_data)  
-    input_data = np.reshape(input_data, (-1, 8))  
 
-    # Normalize input data using the scaler
-    input_data_scaled = scaler.transform(input_data)
-    prediction = model.predict(input_data_scaled)
-    pred_item = prediction.tolist()[0]
-    response = {'guest_ct' : pred_item}
 
-    return jsonify(response)
-```
 
 <br> <h3 align='center'><b> Prediction dashboard and backend </b></h3> <p align="left">
 The <a href="Blazor\Hotel Demand Blazor\Hotel Demand Blazor"> .NET backend </a> was written in .NET Core using Blazor and .NET Core WebAPI. The DemandService is injected into the dashboard and fetches sets of data used to draw the dashboard front-end. The Layout and graphing is handled by <a href="https://github.com/radzenhq/radzen-blazor"> Radzen Blazor </a> and the <a href="https://github.com/apexcharts/Blazor-ApexCharts"> Apexcharts Blazor wrapper </a>. Microsoft SQL Express + EF are used for storing and retrieving the proprocessed and aggregated Kaggle data, but is not included in this project for ease of reproduction through the <a href="/data"> included .CSV data. </a></p>
-
 ```html
-<ApexChart TItem="Prediction"Title=@today.YearStr>
+<ApexChart TItem="Prediction"
+           Title=@today.YearStr>
 
-              <ApexPointSeries TItem="Prediction"
-                  Items="predictionDataSubset" 
-                  Name="Actual guests" 
-                  XValue="@(e => e.Date.MonthDayStr)"
-                  YValue="@(e => e.GuestCount)"
-                  SeriesType="SeriesType.Area" />
+            <!-- Actual guest count -->      
+            <ApexPointSeries TItem="Prediction"
+                      Items="predictionData"
+                      Name="Actual guests"
+                      XValue="@(e => e.Date.MonthDayStr)"
+                      YValue="@(e => e.GuestCount)"
+                      SeriesType="SeriesType.Area"/>
 
-              <ApexPointSeries TItem="Prediction"
-                 Items="predictionDataSubset" 
-                 Name="Predicted guests" 
-                 XValue="@(e => e.Date.MonthDayStr)" 
-                 YValue="@(e => e.Predicted)" 
-                 SeriesType="SeriesType.Area" />
-</ApexChart>                 
+            <!-- Predicted  guest count -->      
+            <ApexPointSeries TItem="Prediction"
+                      Items="predictionData"
+                      Name="Predicted guests"
+                      XValue="@(e => e.Date.MonthDayStr)"
+                      YValue="@(e => e.Predicted)"
+                      SeriesType="SeriesType.Area" />
+</ApexChart>
 ```
 
 <br> <h3 align='center'><b> Model results </b></h3> <p align="left">
