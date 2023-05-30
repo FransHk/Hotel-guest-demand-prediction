@@ -1,0 +1,260 @@
+﻿@page "/"
+
+<PageTitle>Demand forecast</PageTitle>
+@using Hotel_Demand_Blazor.Data;
+@using Blazor_ApexCharts;
+@using BlazorApexCharts;
+@using Hotel_Demand_Blazor.Components;
+@using System.Globalization;
+@using System.Runtime.Serialization;
+@using Hotel_Demand_Blazor.Models;
+@inject DemandService DemandService
+
+<body>
+    <RadzenStack Orientation="Radzen.Orientation.Vertical" Gap="5px">
+
+    @*Row 1*@
+    <RadzenStack Orientation="Radzen.Orientation.Horizontal" Gap="50px" Style=" min-width: 150px; max-width: 300px;">
+        <div style="font-size: 10px;" >
+
+            @* Col 1 *@
+             <RadzenPanel Class="rz-my-10 rz-mx-auto" Style="width: 400px;height: 450px; position:relative">
+             <h4> Model overview </h4>
+             @if (predictionData != null)
+                    {
+                        <p>Hi! Today is <b>@today.MonthNameStr @today.DayStr, @today.YearStr.</b> Average temperature expected is <b>@temp. degrees celsius.</b>
+                            <br> Please refer to the panels for historical guest counts and the model's predictions (over the test set). 
+                            The data table shows aggerated data that is interpreted by the model. The model allows you to predict the expected total number of 
+                            guests using a time-series model. We use a fixed historical end-date because that is where the dataset ends. 
+                        </p>
+                        <p>
+                            @* Src component *@
+                            <Sources></Sources>
+                        </p>
+                    }
+                </RadzenPanel>
+            </div>
+            @* Col 2 *@
+            <div>
+                <RadzenPanel Class="rz-my-10 rz-mx-auto" Style="width: 500px;height: 450px; position:relative">
+                    <h4> Test set predictions </h4>
+                    @if (predictionData != null)
+                    {
+                        <ApexChart TItem="Prediction"
+                               Title=@today.YearStr>
+
+                            <ApexPointSeries TItem="Prediction"
+                                         Items="predictionDataSubset"
+                                         Name="Actual guests"
+                                         XValue="@(e => e.Date.MonthDayStr)"
+                                         YValue="@(e => e.GuestCount)"
+                                         SeriesType="SeriesType.Area" />
+
+                            <ApexPointSeries TItem="Prediction"
+                                         Items="predictionDataSubset"
+                                         Name="Predicted guests"
+                                         XValue="@(e => e.Date.MonthDayStr)"
+                                         YValue="@(e => e.Predicted)"
+                                         SeriesType="SeriesType.Area" />
+                        </ApexChart>
+                    }
+                    <div style="position:absolute; bottom:25px; left:15px">
+                        <RadzenStack Orientation="Radzen.Orientation.Horizontal" Gap="50px">
+                            <RadzenFormField Text="Days back from today" Style="height:50px">
+                                <RadzenNumeric @bind-Value="@daysBackSubset" Disabled="true" />
+                            </RadzenFormField>
+                            <RadzenButton Click=@GetGuestData Text="Refresh" ButtonStyle="ButtonStyle.Primary" Style="height:30px; align-self:center" />
+                        </RadzenStack>
+                    </div>
+                </RadzenPanel>
+            </div>
+            @*Col 3: User count graph*@
+            <div>
+                <RadzenPanel  Class="rz-my-10 rz-mx-auto" Style="width: 500px;height: 450px; position:relative">
+                    <h4>Test set predictions</h4>
+                    @if (predictionData != null)
+                    {
+                        <ApexChart TItem="Prediction"
+                           Title=@today.YearStr>
+
+                            <ApexPointSeries TItem="Prediction"
+                                     Items="predictionData"
+                                     Name="Actual guests"
+                                     XValue="@(e => e.Date.MonthDayStr)"
+                                     YValue="@(e => e.GuestCount)"
+
+                                    SeriesType="SeriesType.Area"/>
+
+                            <ApexPointSeries TItem="Prediction"
+                                         Items="predictionData"
+                                         Name="Predicted guests"
+                                         XValue="@(e => e.Date.MonthDayStr)"
+                                         YValue="@(e => e.Predicted)"
+                                         SeriesType="SeriesType.Area" />
+                        </ApexChart>
+                    }  
+                    <div style="position:absolute; bottom:25px; left:15px">
+                        <RadzenStack Orientation="Radzen.Orientation.Horizontal" Gap="50px">
+                            <RadzenFormField Text="Days back from today" Style="height:50px">
+                                <RadzenNumeric @bind-Value="@daysBack" Disabled="true" />
+                            </RadzenFormField>
+                            <RadzenButton Click=@GetGuestData Text="Refresh"  ButtonStyle="ButtonStyle.Primary" Style="height:30px; align-self:center"/>
+                        </RadzenStack>
+                    </div>
+                </RadzenPanel>
+            </div>
+        </RadzenStack>
+
+        @*Row 2*@
+        <RadzenStack Orientation="Radzen.Orientation.Horizontal" Gap="50px" Style=" min-width: 200px; max-width: 500px;">
+
+            @* Col 1: Predict tool *@
+            <div>
+                <RadzenPanel Class="rz-my-10 rz-mx-auto" Style="width: 500px;height: 400px; position: relative">
+                    <h4>Predict guest count</h4>
+                    <RadzenRow Gap="1rem">
+
+                        <RadzenColumn Size="4" SizeSM="4">
+                            <RadzenFormField Text="Temperature">
+                                <RadzenNumeric @bind-Value="@temp" Min="-25" Max="45" />
+                            </RadzenFormField>
+                            <RadzenFormField Text="Weekend flag">
+                                <RadzenNumeric @bind-Value=@weekend TValue="int" Min="0" Max="1"/>
+                            </RadzenFormField>
+                            <RadzenFormField Text="Weekday flag">
+                                <RadzenNumeric @bind-Value=@weekday TValue="int" Min="0" Max="1" />
+                            </RadzenFormField>
+                            <RadzenFormField Text="Guests yesterday">
+                                <RadzenNumeric @bind-Value="@guestsYesterday" Min="0" Max="450"/>
+                            </RadzenFormField>
+                        </RadzenColumn>
+
+                        <RadzenColumn Size="4" SizeSM="4">
+                            <RadzenFormField Text="Precipation (mm)">
+                                <RadzenNumeric @bind-Value="@precipation" Disabled="true" />
+                            </RadzenFormField>
+                            <RadzenFormField Text="Is holiday?">
+                                <RadzenNumeric @bind-Value="@holidayFlag" Disabled="true" />
+                            </RadzenFormField>
+                            <RadzenFormField Text="Guests last 7 days">
+                                <RadzenNumeric @bind-Value="@last7" Disabled="true" />
+                            </RadzenFormField>
+                            <RadzenFormField Text="Guests last 28 days">
+                                <RadzenNumeric @bind-Value="@last28" Disabled="true" />
+                            </RadzenFormField>
+                        </RadzenColumn>
+                    </RadzenRow>
+
+                    <br />
+                    <RadzenButton Click=@GetPrediction Text="Predict" style="position:absolute; bottom:25px; left:15px" ButtonStyle="ButtonStyle.Primary" />
+                    @if (demand_int != null)
+                    {
+                        <br />
+                        <p>The predicted demand for @today.MonthNameStr @today.DayStr, @today.YearStr is: <b>@demand_int</b></p>
+                    }
+                </RadzenPanel>
+            </div>
+
+            @*Col 2: Show some dataset elements*@
+            <div>
+                <RadzenPanel Class="rz-my-10 rz-mx-auto" Style="width: 1000px;height: 400px; position:relative">
+
+
+                    <h4>Aggregated input data </h4>
+                    <RadzenDataGrid AllowColumnResize="true" AllowAlternatingRows="false" PageSize="5" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left"
+                                    Data="@fullDataList" TItem="FullData" ColumnWidth="300px">
+                        <Columns>
+                            <RadzenDataGridColumn TItem="FullData" Property="Date" Filterable="false" Title="Arrival Date" Width="150px" TextAlign="TextAlign.Center" />
+                            <RadzenDataGridColumn TItem="FullData" Property="GuestCount" Title="Guest Count"  Width="110px" />
+                            <RadzenDataGridColumn TItem="FullData" Property="HolidayFlag" Title="Holiday Flag" Width="110px"/> 
+                            <RadzenDataGridColumn TItem="FullData" Property="Temp" Title="Temperature (C)" Width="110px" />
+                            <RadzenDataGridColumn TItem="FullData" Property="Weekday" Title="Weekday Flag"  Width="110px" />
+                            <RadzenDataGridColumn TItem="FullData" Property="Weekend" Title="Weekend Flag" Width="110px" />
+                            <RadzenDataGridColumn TItem="FullData" Property="Last7" Title="Avg. 7 days" Width="110px" />
+                            <RadzenDataGridColumn TItem="FullData" Property="Last28" Title="Avg. 28 days" Width="110px" />
+
+                        </Columns>
+                    </RadzenDataGrid>
+
+                </RadzenPanel>
+            </div> 
+
+        </RadzenStack>
+    </RadzenStack>
+</body>
+
+@code {
+    // Data for graphing table and chart
+    private IEnumerable<FullData> fullDataList; // Data as shown in aggregate table
+    private List<Prediction> predictionData { get; set; } // Data as shown in graphs
+    private List<Prediction> predictionDataSubset {get; set;}
+    private DateTimeHelper today; // Data used for text
+
+    // Historical graphs to show
+    private int daysBack = 85; 
+    private int daysBackSubset = 22;
+
+    // Bound input fields for manual prediction
+    // TODO create VM for this 
+    private float temperature;
+    private int? demand_int;
+    private double temp = 18.7;
+    private double precipation = 0;
+    private int holidayFlag = 0;
+    private int weekend = 1;
+    private int weekday = 0;
+    private double guestsYesterday = 229;
+    private double last7 = 152;
+    private double last28 = 117;
+
+
+    // Fetch model prediction from Flask backend
+    private async Task GetPrediction()
+    {
+        // Can't have this, correct accordingly
+        if(weekend == weekday)
+            weekday = 1 - weekend;
+
+        // Pass model input to array and fetch outcome
+        double[] data = new double[] { temp, precipation, holidayFlag, weekend, weekday, guestsYesterday, last7, last28 };
+        Demand_DTO demandPred = await DemandService.GetPredictionAsync(data);
+        demand_int = (int)Math.Round(demandPred.guest_ct[0]);
+    }
+
+    // Get GuestData on initialisation
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        await GetGuestData();
+    }
+
+    // Obtains data for last n observations
+    // in form of prediction, actual guests and date
+    private async Task GetGuestData()
+    {
+        // Get last n predictions from API and take a subset of
+        // that for an additional second graph
+        predictionData = await DemandService.GetLastPredictions(daysBack); 
+        predictionDataSubset = predictionData.Skip(Math.Max(0, predictionData.Count() - daysBackSubset)).ToList<Prediction>();
+        fullDataList = await DemandService.GetFullDataAsync(daysBack); // Data table
+
+        // Obtain data for displaying in dashboard
+        if (predictionData.Count > 0)
+        {
+            var lastObservation = predictionData.LastOrDefault();
+            if(lastObservation != null)
+                today = new DateTimeHelper(lastObservation.Date.Date);
+                today.AddDays(1);
+
+            Console.WriteLine("Fetched:" + predictionData.Count + " items");
+            StateHasChanged();
+        }
+    }
+}
+
+
+    
+
+
+
+

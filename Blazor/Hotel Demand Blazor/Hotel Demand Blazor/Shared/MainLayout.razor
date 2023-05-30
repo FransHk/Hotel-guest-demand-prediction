@@ -1,0 +1,34 @@
+﻿@inherits LayoutComponentBase
+@inject NavigationManager navManager;
+
+<RadzenLayout Style="grid-template-areas: 'rz-sidebar rz-header' 'rz-sidebar rz-body'">
+    <RadzenHeader>
+        <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="AlignItems.Start" Gap="0">
+            <RadzenSidebarToggle Click="@(() => sidebar2Expanded = !sidebar2Expanded)" />
+        </RadzenStack>
+    </RadzenHeader>
+    <RadzenSidebar @bind-Expanded="@sidebar2Expanded">
+        <RadzenPanelMenu>
+            <RadzenPanelMenuItem Click=@(args => OnClick("")) Text="Dashboard" Icon="dashboard" />
+            
+        </RadzenPanelMenu>
+        <div class="rz-p-4">
+        </div>
+    </RadzenSidebar>
+    <RadzenBody>
+        <div class="rz-p-4">
+            @Body
+        </div>
+    </RadzenBody>
+</RadzenLayout>
+
+@code {
+    bool sidebar2Expanded = false;
+
+    // Navigates to the razor page as specified by text
+    private void OnClick(string text)
+    {
+        navManager.NavigateTo("/" + text);
+    }
+
+}
