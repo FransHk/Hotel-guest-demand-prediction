@@ -4,7 +4,7 @@
 </div>
   </a>
 
-<h1 align="center"><b>Hotel guest demand prediction pipeline</b></h2></br>
+<h1 align="center"><b>Hotel guest forecasting pipeline</b></h2></br>
 <div align='center'> <img align='center'src="images/screen_3.png"  width="690" height="444"></div>
 
 </br>
