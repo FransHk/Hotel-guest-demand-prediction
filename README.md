@@ -10,7 +10,7 @@
 </br>
 <h2 align="center"><b>Project description</b></h3>
 <p align="left">
-This is an end-to-end machine learning pipeline with an exposed API and visual front-end. The goal of the model is to predict the expected amount of guests of a hotel based on two years of booking data. The original Kaggle entry can be found <a href="https://www.kaggle.com/datasets/jessemostipak/hotel-booking-demand"> here </a>. The corresponding hotel is located in Portugal and the booking data ranges from 2015-07-01 to 2017-07-01. This project serves as a end-to-end machine learning pipeline example and the total project duration was approximately two weeks. <b>The dashboard is currently not hosted, a high resolution screenshot of dashboard is available <a href="images/screen_3.png"> here. </a> </p></b>
+This is an end-to-end machine learning pipeline with a model exposed through Flask and an interactive front-end. The goal of the model is to forecast guest demand of a hotel based on two years of booking data. The original Kaggle entry can be found <a href="https://www.kaggle.com/datasets/jessemostipak/hotel-booking-demand"> here </a>. The corresponding hotel is located in Portugal and the booking data ranges from 2015-07-01 to 2017-07-01. This project serves as an end-to-end machine learning pipeline template. Total project duration was approximately two weeks. <b>The dashboard is currently not hosted, a high resolution screenshot of dashboard is available <a href="images/screen_3.png"> here. </a> </p></b>
 <br><br>
 
 <h2 align="center"><b>Project components</b></h3>
@@ -29,15 +29,15 @@ This is an end-to-end machine learning pipeline with an exposed API and visual f
    
 </p>
 <br> <h2 align='center'><b>Model information </b></h3> <p align="left"> 
-The  <a href="model.ipynb"> modelling </a> of this project was done exclusively in Python using Jupyter Notebook, Tensorflow and a host of standard data science packages. The Kaggle data was aggregated by open source <a href="https://open-meteo.com/">weather data</a> in Lisbon and Portugese school holidays during that time period. Multiple models were implemented. Given the (time) serial nature of the booking data, the first model built was an LSTM. Results of this model were compared to a baseline model (mean guests), a DNN and a simple SVR model. The columns 'last_28' and 'last_7' are rolling averages of the specified previous span of days. Multiple features were engineered, evaluated and added to the model. </p>
+The  <a href="model.ipynb"> modelling </a> of this project was done in Python using Jupyter Notebooks, Tensorflow and a host of standard data science packages (Scikit, pandas..). The Kaggle data was aggregated by open source <a href="https://open-meteo.com/">weather data</a> in Lisbon and Portugese school holidays during that time period. Multiple models were implemented. Given the serial nature of the booking data, the first model built was an LSTM. Results of this model were compared to a baseline model (mean guests), a DNN and a simple SVR model. The columns 'last_28' and 'last_7' are rolling averages of the specified previous span of days. Multiple features were engineered, evaluated and added to the model. </p>
 
 <div align='center'> <br><img align='center' src="images/data_excerpt.png"  width="700" height="125"> </div>
 
 <br> <h3 align='center'><b>Model exposure (Flask) </b></h3> <p align="left">
-The model that performed best (DNN) was exported along with its fitted scaler and then exposed using <a href="endpoints.py"> the Flask endpoint </a> using a DTO-model based approach. The goal was to build an easily scalable set of endpoints that can easily be maintained or built upon.</p>
+The model that performed best (DNN) was exported along with its fitted scaler and then exposed using <a href="endpoints.py"> the Flask endpoint </a> using a DTO-model based approach. The goal was to build an easily scalable set of endpoints that can easily be maintained and built upon.</p>
 
 <br> <h3 align='center'><b> Prediction dashboard and backend </b></h3> <p align="left">
-The <a href="Blazor\Hotel Demand Blazor\Hotel Demand Blazor"> .NET backend </a> was written in .NET Core using Blazor and .NET Core WebAPI. The DemandService is injected into the dashboard and fetches sets of data used to draw the dashboard front-end. The Layout and graphing is handled by <a href="https://github.com/radzenhq/radzen-blazor"> Radzen Blazor </a> and the <a href="https://github.com/apexcharts/Blazor-ApexCharts"> Apexcharts Blazor wrapper </a>. Microsoft SQL Express + EF are used for storing and retrieving the proprocessed and aggregated Kaggle data, but is not included in this project for ease of reproduction through the <a href="/data"> included .CSV data. </a></p>
+The <a href="Blazor\Hotel Demand Blazor\Hotel Demand Blazor"> .NET backend </a> was written in .NET Core using Blazor and .NET Core WebAPI. The DemandService is injected into the dashboard and fetches forecasting data used to draw the dashboard front-end. The Layout and graphing is handled by <a href="https://github.com/radzenhq/radzen-blazor"> Radzen Blazor </a> and the <a href="https://github.com/apexcharts/Blazor-ApexCharts"> Apexcharts Blazor wrapper </a>. Microsoft SQL Express + EF are used for storing and retrieving the proprocessed and aggregated Kaggle data, but are not included in this project for ease of reproduction through the <a href="/data"> included .CSV data. </a></p>
 
 ```html
 <ApexChart TItem="Prediction"
